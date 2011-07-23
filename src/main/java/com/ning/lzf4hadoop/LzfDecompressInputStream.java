@@ -3,19 +3,35 @@ package com.ning.lzf4hadoop;
 import java.io.InputStream;
 import java.io.IOException;
 
-import org.apache.hadoop.io.compress.CompressionInputStream;
+import org.apache.hadoop.io.compress.*;
 
-public class LzfDecompressInputStream extends CompressionInputStream
+import com.ning.compress.lzf.LZFInputStream;
+
+public class LzfDecompressInputStream
+    extends CompressionInputStream
 {
-    public LzfDecompressInputStream(InputStream in, LzfDecompressor decomp)
+    protected LZFInputStream lzfInput;
+    
+    public LzfDecompressInputStream(InputStream in) throws IOException
     {
         super(in);
+        lzfInput = new LZFInputStream(in);
+    }
+
+    @Override
+    public int available() throws IOException {
+        return lzfInput.available();
+    }
+    
+    @Override
+    public void close() throws IOException {
+        lzfInput.close();
     }
     
     @Override
     public int read() throws IOException
     {
-        return -1;
+        return lzfInput.read();
     }
 
     @Override
@@ -27,10 +43,16 @@ public class LzfDecompressInputStream extends CompressionInputStream
     @Override
     public int read(byte[] buffer, int offset, int length) throws IOException
     {
-        return 0;
+        return lzfInput.read(buffer, offset, length);
     }
 
     @Override
     public void resetState() throws IOException {
+        // !!! TODO: call lzfInput.discardBuffered();
+    }
+
+    @Override
+    public long skip(long n) throws IOException {
+        return lzfInput.skip(n);
     }
 }

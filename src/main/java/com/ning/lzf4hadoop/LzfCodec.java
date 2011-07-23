@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
+import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.io.compress.CompressionCodec;
 import org.apache.hadoop.io.compress.CompressionInputStream;
@@ -22,19 +23,19 @@ public class LzfCodec extends Configured implements CompressionCodec
     }
 
     public CompressionInputStream createInputStream(InputStream in) throws IOException {
-        return createInputStream(in, createDecompressor());
+        return new LzfDecompressInputStream(in);
     }
 
     public CompressionInputStream createInputStream(InputStream in, Decompressor decomp) throws IOException {
-        return new LzfDecompressInputStream(in, (LzfDecompressor) decomp);
+        return createInputStream(in);
     }
 
     public CompressionOutputStream createOutputStream(OutputStream out) throws IOException {
-        return createOutputStream(out, createCompressor());
+        return new LzfCompressOutputStream(out);
     }
 
     public CompressionOutputStream createOutputStream(OutputStream out, Compressor comp) throws IOException {
-        return new LzfCompressOutputStream(out, (LzfCompressor) comp);
+        return createOutputStream(out);
     }
 
     public Class<? extends Compressor> getCompressorType() {
@@ -49,4 +50,10 @@ public class LzfCodec extends Configured implements CompressionCodec
         return ".lzf";
     }
 
+    @Override
+    public void setConf(Configuration conf)
+    {
+        super.setConf(conf);
+        // anything we need to do here?
+    }
 }

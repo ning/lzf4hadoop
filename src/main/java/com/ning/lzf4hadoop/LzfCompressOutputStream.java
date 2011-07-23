@@ -4,35 +4,47 @@ import java.io.*;
 
 import org.apache.hadoop.io.compress.CompressionOutputStream;
 
+import com.ning.compress.lzf.LZFOutputStream;
+
 public class LzfCompressOutputStream extends CompressionOutputStream
 {
-    public LzfCompressOutputStream(OutputStream out, LzfCompressor comp)
+    protected LZFOutputStream lzfOut;
+    
+    public LzfCompressOutputStream(OutputStream out)
     {
         super(out);
+        lzfOut = new LZFOutputStream(out);
+    }
+
+    @Override
+    public void close() throws IOException {
+        lzfOut.close();
     }
 
     @Override
     public void finish() throws IOException {
-        // TODO Auto-generated method stub
-        
+        lzfOut.finishBlock();
+        lzfOut.flush();
     }
 
+    @Override
+    public void flush() throws IOException {
+        lzfOut.flush();
+    }
+    
     @Override
     public void resetState() throws IOException {
-        // TODO Auto-generated method stub
-        
+        // !!! TODO
     }
 
     @Override
-    public void write(byte[] arg0, int arg1, int arg2) throws IOException {
-        // TODO Auto-generated method stub
-        
+    public void write(byte[] buffer, int offset, int length) throws IOException {
+        lzfOut.write(buffer, offset, length);
     }
 
     @Override
-    public void write(int arg0) throws IOException {
-        // TODO Auto-generated method stub
-        
+    public void write(int b) throws IOException {
+        lzfOut.write(b);
     }
 
 }

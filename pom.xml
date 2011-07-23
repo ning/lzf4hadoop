@@ -43,11 +43,11 @@
   </licenses>
 
   <dependencies>
-    <!-- should probably Shade LZF but -->
+    <!-- should probably Shade LZF, start with real dep -->
     <dependency>
       <groupId>com.ning</groupId>
       <artifactId>compress-lzf</artifactId>
-      <version>0.8.0</version>
+      <version>0.8.1</version>
     </dependency>
     <!-- but Hadoop-core we must depend on -->
     <dependency>
