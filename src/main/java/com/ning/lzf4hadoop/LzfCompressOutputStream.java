@@ -34,7 +34,7 @@ public class LzfCompressOutputStream extends CompressionOutputStream
     
     @Override
     public void resetState() throws IOException {
-        // !!! TODO
+        // What, if anything, should we do here?
     }
 
     @Override

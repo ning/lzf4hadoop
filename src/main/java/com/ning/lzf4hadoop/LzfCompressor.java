@@ -10,9 +10,17 @@ import org.apache.hadoop.io.compress.Compressor;
 public class LzfCompressor implements Compressor
 {
     protected byte[] _inputBuffer;
-    protected int _inputPtr;
-    protected int _inputEnd;
+    protected int _inputOffset;
+    protected int _inputLength;
 
+    // Not optimal (ideally would use segments), but has to do
+    
+    protected byte[] _encodedBuffer;
+    protected int _encodedPtr;
+    protected int _encodedEnd;
+
+    protected boolean _finished = false;
+    
     protected long _bytesRead;
     protected long _bytesWritten;
 
@@ -21,21 +29,40 @@ public class LzfCompressor implements Compressor
     
     public int compress(byte[] buffer, int offset, int length) throws IOException
     {
-        // TODO Auto-generated method stub
-        return 0;
+        if (buffer == null || offset < 0 || ((offset + length) > buffer.length)) {
+            throw new IllegalArgumentException("Bad argument(s) to compress; buffer "
+                    +buffer+", offset "+offset+", length "+length);
+        }
+        if (_inputBuffer != null) {
+            _encodedBuffer = LZFEncoder.encode(_inputBuffer, _inputOffset, _inputLength);
+            _encodedPtr = 0;
+            _encodedEnd = _encodedBuffer.length;
+            _inputBuffer = null;
+            _inputOffset = _inputLength = 0;
+        }
+        if (_encodedBuffer == null || _encodedPtr >= _encodedEnd) {
+            return 0;
+        }
+        int actualLen = Math.min(length, (_encodedEnd - _encodedPtr));
+        System.arraycopy(_encodedBuffer, _encodedPtr, buffer, offset, actualLen);
+        _bytesWritten += actualLen;
+        if ((_encodedPtr += actualLen) >= _encodedEnd) {
+            _encodedBuffer = null;
+            _encodedPtr = _encodedEnd = 0;
+        }
+        return actualLen;
     }
 
     public void end() {
+        reset();
     }
 
     public void finish() {
-        // TODO Auto-generated method stub
-        
+        _finished = true;
     }
 
     public boolean finished() {
-        // TODO Auto-generated method stub
-        return false;
+        return _finished && (_inputBuffer == null) && (_encodedBuffer == null);
     }
 
     public long getBytesRead() {
@@ -47,7 +74,7 @@ public class LzfCompressor implements Compressor
     }
 
     public boolean needsInput() {
-        return (_inputPtr >= _inputEnd);
+        return !_finished &(_inputBuffer == null) && (_encodedBuffer == null);
     }
 
     /* Added in Hadoop 0.21.0... let's implement, but can't yet
@@ -60,9 +87,11 @@ public class LzfCompressor implements Compressor
     
     public void reset()
     {
+        _finished = false;
         _bytesRead = _bytesWritten = 0L;
         _inputBuffer = null;
-        _inputPtr = _inputEnd = 0;
+        _inputOffset = _inputLength = 0;
+        _encodedBuffer = null;
     }
 
     public void setDictionary(byte[] buffer, int offset, int length) {
@@ -72,16 +101,15 @@ public class LzfCompressor implements Compressor
     public void setInput(byte[] buffer, int offset, int length)
     {
         // sanity check first:
-        if (_inputPtr < _inputEnd) {
-            throw new IllegalStateException("Should not call setInput() before input is needed");
+        if (_inputBuffer != null || _encodedBuffer != null) {
+            throw new IllegalStateException("Should not call setInput() before previous input has been fully consumed");
         }
         /* Assumption here is that we need not make a copy; seems sensible as copying
          * adds overhead which is unlikely to be needed with hadoop tasks...
          */
         _bytesRead += length;
         _inputBuffer = buffer;
-        _inputPtr = offset;
-        _inputEnd = offset + length;
+        _inputOffset = offset;
+        _inputLength = length;
     }
-
 }

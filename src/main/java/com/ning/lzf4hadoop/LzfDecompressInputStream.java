@@ -48,7 +48,7 @@ public class LzfDecompressInputStream
 
     @Override
     public void resetState() throws IOException {
-        // !!! TODO: call lzfInput.discardBuffered();
+        lzfInput.discardBuffered();
     }
 
     @Override
