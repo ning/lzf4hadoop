@@ -15,9 +15,9 @@ public class LzfDecompressor implements Decompressor
 
     // Not optimal (ideally would use segments), but has to do
     
-    protected byte[] _encodedBuffer;
-    protected int _encodedPtr;
-    protected int _encodedEnd;
+    protected byte[] _decodedBuffer;
+    protected int _decodedPtr;
+    protected int _decodedEnd;
 
     protected boolean _finished = false;
     
@@ -31,21 +31,21 @@ public class LzfDecompressor implements Decompressor
                     +buffer+", offset "+offset+", length "+length);
         }
         if (_inputBuffer != null) {
-            _encodedBuffer = LZFDecoder.decode(_inputBuffer, _inputOffset, _inputLength);
-            _encodedPtr = 0;
-            _encodedEnd = _encodedBuffer.length;
+            _decodedBuffer = LZFDecoder.decode(_inputBuffer, _inputOffset, _inputLength);
+            _decodedPtr = 0;
+            _decodedEnd = _decodedBuffer.length;
             _inputBuffer = null;
             _inputOffset = _inputLength = 0;
         }
-        if (_encodedBuffer == null || _encodedPtr >= _encodedEnd) {
+        if (_decodedBuffer == null || _decodedPtr >= _decodedEnd) {
             return 0;
         }
-        int actualLen = Math.min(length, (_encodedEnd - _encodedPtr));
-        System.arraycopy(_encodedBuffer, _encodedPtr, buffer, offset, actualLen);
+        int actualLen = Math.min(length, (_decodedEnd - _decodedPtr));
+        System.arraycopy(_decodedBuffer, _decodedPtr, buffer, offset, actualLen);
         _bytesWritten += actualLen;
-        if ((_encodedPtr += actualLen) >= _encodedEnd) {
-            _encodedBuffer = null;
-            _encodedPtr = _encodedEnd = 0;
+        if ((_decodedPtr += actualLen) >= _decodedEnd) {
+            _decodedBuffer = null;
+            _decodedPtr = _decodedEnd = 0;
         }
         return actualLen;
     }
@@ -63,7 +63,7 @@ public class LzfDecompressor implements Decompressor
     }
 
     public boolean needsInput() {
-        return (_inputBuffer == null) && (_encodedBuffer == null);
+        return (_inputBuffer == null) && (_decodedBuffer == null);
     }
     
     public void reset() {
@@ -71,7 +71,7 @@ public class LzfDecompressor implements Decompressor
         _bytesRead = _bytesWritten = 0L;
         _inputBuffer = null;
         _inputOffset = _inputLength = 0;
-        _encodedBuffer = null;
+        _decodedBuffer = null;
     }
 
     public void setDictionary(byte[] buffer, int offset, int length) {
@@ -81,7 +81,7 @@ public class LzfDecompressor implements Decompressor
     public void setInput(byte[] buffer, int offset, int length)
     {
         // sanity check first:
-        if (_inputBuffer != null || _encodedBuffer != null) {
+        if (_inputBuffer != null || _decodedBuffer != null) {
             throw new IllegalStateException("Should not call setInput() before previous input has been fully consumed");
         }
         /* Assumption here is that we need not make a copy; seems sensible as copying
