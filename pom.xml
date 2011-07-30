@@ -43,11 +43,12 @@
   </licenses>
 
   <dependencies>
-    <!-- should probably Shade LZF, start with real dep -->
+    <!-- We need LZF; will be shaded -->
     <dependency>
       <groupId>com.ning</groupId>
       <artifactId>compress-lzf</artifactId>
       <version>0.8.3</version>
+      <scope>compile</scope>
     </dependency>
     <!-- but Hadoop-core we must depend on -->
     <dependency>
@@ -61,19 +62,47 @@
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
       <version>4.8.2</version>
-      <!-- <scope>test</scope> -->
+      <scope>test</scope>
     </dependency>
   </dependencies>
 
   <build>
     <plugins>
       <plugin>
+	    <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
         <version>2.3.2</version>
         <configuration>
           <source>1.5</source>
           <target>1.5</target>
         </configuration>
+      </plugin>
+      <plugin>
+        <!--  We will shade compress-LZF version, to simplify deployment, avoid version conflicts -->
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-shade-plugin</artifactId>
+        <version>1.4</version>
+        <executions>
+          <execution>
+            <phase>package</phase>
+            <goals>
+              <goal>shade</goal>
+            </goals>
+            <configuration>
+              <artifactSet><!--  only thing we want to embed is LZF codec... -->
+                <includes>
+                  <include>com.ning:compress-lzf</include>
+                </includes>
+              </artifactSet>
+              <relocations>
+                <relocation>
+                  <pattern>com.ning.compress.lzf</pattern>
+                  <shadedPattern>com.ning.lzf4hadoop.shaded</shadedPattern>
+                </relocation>
+              </relocations>
+            </configuration>
+          </execution>
+        </executions>
       </plugin>
         <plugin>
             <groupId>org.apache.maven.plugins</groupId>
@@ -124,20 +153,21 @@
         <plugin>
           <groupId>org.apache.felix</groupId>
           <artifactId>maven-bundle-plugin</artifactId>
-          <version>2.3.5</version>
+          <version>2.3.4</version>
           <extensions>true</extensions>
           <configuration>
             <instructions>
-              <Bundle-SymbolicName>${pom.artifactId}</Bundle-SymbolicName>
+              <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
               <Bundle-Vendor>com.ning</Bundle-Vendor>
               <Import-Package>
 com.ning.compress.lzf,
+org.apache.hadoop.conf,
 org.apache.hadoop.io.compress
 </Import-Package>
               <Private-Package>
 </Private-Package>
               <Export-Package>
-com.ning.lzf4h
+com.ning.lzf4hadoop
 </Export-Package>
             </instructions>
           </configuration>
