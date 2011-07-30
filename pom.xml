@@ -8,7 +8,7 @@
   <groupId>com.ning</groupId>
   <artifactId>lzf4hadoop</artifactId>
   <name>lzf4hadoop</name>
-  <version>0.5.0</version>
+  <version>0.5.1-SNAPSHOT</version>
   <packaging>bundle</packaging>
   <description>Support for using LZF codec with Hadoop
   </description>
