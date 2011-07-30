@@ -4,7 +4,6 @@ import java.io.IOException;
 
 import com.ning.compress.lzf.*;
 
-import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.io.compress.Decompressor;
 
 public class LzfDecompressor implements Decompressor
@@ -24,7 +23,7 @@ public class LzfDecompressor implements Decompressor
     protected long _bytesRead;
     protected long _bytesWritten;
     
-    public int decompress(byte[] buffer, int offset, int length)
+    public int decompress(byte[] buffer, int offset, int length) throws IOException
     {
         if (buffer == null || offset < 0 || ((offset + length) > buffer.length)) {
             throw new IllegalArgumentException("Bad argument(s) to decompress; buffer "
