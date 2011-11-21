@@ -8,7 +8,7 @@
   <groupId>com.ning</groupId>
   <artifactId>lzf4hadoop</artifactId>
   <name>lzf4hadoop</name>
-  <version>0.5.1-SNAPSHOT</version>
+  <version>0.9.1-SNAPSHOT</version>
   <packaging>bundle</packaging>
   <description>Support for using LZF codec with Hadoop
   </description>
@@ -47,7 +47,7 @@
     <dependency>
       <groupId>com.ning</groupId>
       <artifactId>compress-lzf</artifactId>
-      <version>0.8.3</version>
+      <version>0.9.1</version>
       <scope>compile</scope>
     </dependency>
     <!-- but Hadoop-core we must depend on -->
