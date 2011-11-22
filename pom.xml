@@ -43,7 +43,8 @@
   </licenses>
 
   <dependencies>
-    <!-- We need LZF; will be shaded -->
+    <!-- We need LZF; will be shaded; but why is it "compiled"?
+      -->
     <dependency>
       <groupId>com.ning</groupId>
       <artifactId>compress-lzf</artifactId>
