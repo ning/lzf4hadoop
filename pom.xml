@@ -161,12 +161,15 @@
               <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
               <Bundle-Vendor>com.ning</Bundle-Vendor>
               <Import-Package>
-com.ning.compress.lzf,
 org.apache.hadoop.conf,
 org.apache.hadoop.io.compress
 </Import-Package>
               <Private-Package>
 </Private-Package>
+              <!-- shouldn't need this, but looks like bundle plug-in requires -->
+              <DynamicImport-Package>
+com.ning.compress.lzf,
+</DynamicImport-Package>
               <Export-Package>
 com.ning.lzf4hadoop
 </Export-Package>
