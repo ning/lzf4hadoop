@@ -160,16 +160,14 @@
             <instructions>
               <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
               <Bundle-Vendor>com.ning</Bundle-Vendor>
+             <!-- not sure if this helps but let's try "resolution:=optional" -->
               <Import-Package>
 org.apache.hadoop.conf,
-org.apache.hadoop.io.compress
+org.apache.hadoop.io.compress,
+com.ning.compress.lzf;resolution:=optional,
 </Import-Package>
               <Private-Package>
 </Private-Package>
-              <!-- shouldn't need this, but looks like bundle plug-in requires -->
-              <DynamicImport-Package>
-com.ning.compress.lzf,
-</DynamicImport-Package>
               <Export-Package>
 com.ning.lzf4hadoop
 </Export-Package>
