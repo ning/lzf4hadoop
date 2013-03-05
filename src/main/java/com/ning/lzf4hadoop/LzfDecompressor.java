@@ -91,4 +91,9 @@ public class LzfDecompressor implements Decompressor
         _inputOffset = offset;
         _inputLength = length;
     }
+
+    public int getRemaining() {
+        // Similar to other examples like Snappy codec, not used here:
+        return 0;
+    }
 }
